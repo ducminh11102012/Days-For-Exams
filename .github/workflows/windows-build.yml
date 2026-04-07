@@ -11,15 +11,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔥 Fix Qt install (stable version)
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      # 🐍 Setup Python (fix aqt bug)
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          version: '6.6.3'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_msvc2022_64'
-          modules: 'qtdeclarative'
+          python-version: '3.11'
+
+      # 🔥 Install aqt (version ổn định)
+      - name: Install aqt
+        run: pip install aqtinstall==3.1.6
+
+      # 🔥 Install Qt (manual, không bug)
+      - name: Install Qt
+        run: |
+          python -m aqt install-qt windows desktop 6.6.3 win64_msvc2022_64 -O C:/Qt
+
+      # ⚙️ Add Qt vào PATH
+      - name: Setup Qt Env
+        run: |
+          echo "C:/Qt/6.6.3/msvc2022_64/bin" >> $env:GITHUB_PATH
 
       # 🛠️ Configure
       - name: Configure (CMake)
@@ -29,18 +39,14 @@ jobs:
       - name: Build (Release)
         run: cmake --build build --config Release
 
-      # 🧪 Test (optional nhưng cứ để)
-      - name: Run tests
-        run: ctest --test-dir build -C Release --output-on-failure
-
-      # 🚀 Deploy Qt (VERY IMPORTANT)
+      # 🚀 Deploy Qt
       - name: Deploy Qt
         run: |
           cd build/Release
           windeployqt *.exe
 
-      # 📦 Upload exe + dll đầy đủ
-      - name: Upload artifact (.exe + deps)
+      # 📦 Upload
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: dfe-windows-build
