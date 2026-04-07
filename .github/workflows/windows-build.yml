@@ -11,10 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # NOTE:
-      # Previous failure came from requesting module `qt5compat` for Qt 6.7.2,
-      # which is not available in that package feed/arch combination.
-      # Install only the base desktop package to keep CI deterministic.
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -22,7 +18,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
-          cache: true
+          modules: 'qt5compat'
 
       - name: Configure (CMake)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DDFE_ENABLE_QT_UI=ON
