@@ -2,173 +2,88 @@
 
 > **Lock in. Cut distractions. Survive the deadline.**
 
----
+DFE là ứng dụng tập trung học thi theo phong cách SEB-like: tạo môi trường học fullscreen, giảm xao nhãng và bám sát kế hoạch đến ngày thi.
 
-## 🚀 Overview
+## 🚀 Stack hiện tại
 
-**Day For Exams (DFE)** is a lightweight study-focused lockdown application built for students facing high-pressure exam periods.
+- **Core logic:** C++20
+- **UI chính (premium):** Qt 6 + QML (khi môi trường có Qt)
+- **Fallback UI:** C++ session simulation (không cần Qt)
+- **Build system:** CMake
+- **CI:** GitHub Actions build Windows `.exe` artifact
 
-Inspired by tools like Safe Exam Browser, DFE creates a controlled digital environment that minimizes distractions while guiding users through a structured study plan.
+## ✅ Tính năng đã có
 
-Instead of replacing the operating system, DFE runs as a **secure fullscreen layer**, ensuring focus without compromising system stability.
+- Profile `.dfe` (load/save)
+- Sinh lịch học tự động theo ngày thi + mức ưu tiên môn
+- Policy whitelist app/web
+- Lockdown monitor (MVP) cho nhóm app gây xao nhãng
+- Dashboard QML fullscreen (TopBar, SchedulePanel, Dock)
 
----
+## 🧱 Kiến trúc
 
-## 🎯 Core Concept
-
-DFE operates on a simple idea:
-
-> When exams get close, your computer should stop being entertainment and start being a study tool.
-
----
-
-## ✨ Features
-
-### 🧠 Smart Study Setup
-
-* Input subject(s), exam date, and study goals
-* Automatically generates a personalized study schedule
-* Adapts to remaining time before exams
-
----
-
-### 📁 User Profile System (.dfe)
-
-* Stores user configuration in `.dfe` files
-* Enables quick resume of study sessions
-* Keeps track of preferences and goals
-
----
-
-### 🔒 Focus Lock Mode
-
-When activated:
-
-* Blocks unauthorized applications
-* Restricts system-level distractions
-* Runs in fullscreen, always-on-top mode
-
----
-
-### 🌐 Controlled Web Access
-
-Only selected websites are accessible, such as:
-
-* ChatGPT
-* Google Search
-* Oxford Dictionary
-* Gemini
-
-All other websites are restricted during study sessions.
-
----
-
-### 🖥️ Minimal Study Interface
-
-* Clean, distraction-free UI
-* Inspired by exam environments like SEB
-* Quick access to:
-
-  * Allowed applications
-  * Study materials
-  * Timer and schedule
-
----
-
-### ⏱️ Session & Time Management
-
-* Built-in study timer
-* Daily schedule tracking
-* Optional end time (default: 23:30)
-
----
-
-### 🔓 Exit System
-
-* Secure exit option within the app
-* Restores normal system behavior after session ends
-
----
-
-## 🏗️ Architecture Overview
-
-```
+```text
 +----------------------+
-|  Setup Module        |
-|  (User Input)        |
+| Setup/Profile Loader |
 +----------+-----------+
-           |
            v
 +----------------------+
-|  Scheduler Engine    |
-|  (Study Plan)        |
+| Scheduler Engine     |
 +----------+-----------+
-           |
            v
 +----------------------+
-|  Lockdown Manager    |
-|  - App Control       |
-|  - Web Restriction   |
+| Policy + Lockdown    |
 +----------+-----------+
-           |
            v
-+----------------------+
-|  Fullscreen UI Layer |
-|  (DFE Interface)     |
-+----------------------+
++----------------------+           +----------------------+
+| AppController (Qt)   | <-------> | QML UI (Main/Widgets)|
++----------------------+           +----------------------+
 ```
 
----
+## 📁 Cấu trúc
 
-## 🛠️ Technologies
-
-* **Language:** C++
-* **Platform:** Windows
-* **Core APIs:** WinAPI
-* **Optional UI Framework:** Qt
-* **System Control:**
-
-  * Process management
-  * Keyboard hooks
-  * Window control
-
----
-
-## 📦 Project Structure
-
-```
-/DFE
- ├── core/
- ├── ui/
- ├── scheduler/
- ├── security/
- ├── config/
- └── main.cpp
+```text
+.
+├── include/dfe
+├── src
+│   ├── backend
+│   │   └── AppController.cpp
+│   ├── core
+│   ├── scheduler
+│   ├── security
+│   ├── ui
+│   └── main.cpp
+├── qml
+│   ├── Main.qml
+│   ├── components/
+│   ├── pages/
+│   └── styles/
+├── tests
+└── .github/workflows
 ```
 
----
+## 🛠️ Build
 
-## ⚠️ Limitations
+### 1) Fallback (không Qt)
 
-* Cannot guarantee 100% prevention of advanced bypass techniques
-* Requires appropriate system permissions for full functionality
-* Performance may vary depending on system configuration
+```bash
+cmake -S . -B build -DDFE_ENABLE_QT_UI=OFF
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
 
----
+### 2) Qt + QML UI
 
-## 💡 Future Improvements
+Yêu cầu Qt6 (Quick + Qml):
 
-* AI-assisted study planning
-* Progress analytics dashboard
-* Cross-platform support
-* Cloud sync for `.dfe` profiles
+```bash
+cmake -S . -B build
+cmake --build build
+```
 
----
+Nếu CMake tìm thấy Qt6, binary `dfe` sẽ chạy QML dashboard.
 
-## 📌 Summary
+## 🔒 Lưu ý
 
-DFE is designed to do one thing well:
-
-> Help students stay focused when it matters most.
-
-No distractions. No excuses. Just results.
+- Bản này là nền tảng production-ready theo hướng module hóa, có thể mở rộng thêm hardening web restriction/network layer.
+- Không thay shell Windows (`explorer.exe`).
