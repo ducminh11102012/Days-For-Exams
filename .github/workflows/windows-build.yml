@@ -14,7 +14,7 @@ jobs:
       # ⚡ Install Qt via official prebuilt zip (stable)
       - name: Download Qt prebuilt
         run: |
-          curl -L -o qt.zip https://github.com/qt/qtbase/releases/download/v6.6.3/qt-windows-msvc2022.zip
+          curl -L -o qt.zip https://download.qt.io/archive/qt/6.11/6.11.0/single/qt-everywhere-src-6.11.0.zip
           mkdir C:\Qt
           tar -xf qt.zip -C C:\Qt
 
