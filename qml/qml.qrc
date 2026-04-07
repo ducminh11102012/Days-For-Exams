@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>Main.qml</file>
+        <file>components/TopBar.qml</file>
+        <file>components/SchedulePanel.qml</file>
+        <file>components/DockBar.qml</file>
+        <file>styles/Theme.qml</file>
+    </qresource>
+</RCC>
